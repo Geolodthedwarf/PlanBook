@@ -1,6 +1,6 @@
 /*
-  kbdgfx.c -- Demo for drawing realtime graphics to the MNT Reform Keyboard
-  Copyright 2022 MNT Research GmbH (https://mntre.com)
+  kbdgfx.c -- Demo for drawing realtime graphics to the PlanBook Keyboard
+  Copyright 2022 PlanBook Project
   License: MIT
 */
 

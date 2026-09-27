@@ -71,7 +71,7 @@ enum {
 //--------------------------------------------------------------------+
 
 /* FIXME REPORT_ID 5 hardcoded */
-#define TUD_HID_REPORT_DESC_MNTMOUSE() \
+#define TUD_HID_REPORT_DESC_PLANBOOKMOUSE() \
   HID_USAGE_PAGE ( HID_USAGE_PAGE_DESKTOP      )                   ,\
   HID_USAGE      ( HID_USAGE_DESKTOP_MOUSE     )                   ,\
   HID_COLLECTION ( HID_COLLECTION_APPLICATION  )                   ,\
@@ -141,7 +141,7 @@ enum {
 uint8_t static const desc_hid_report[] =
 {
   TUD_HID_REPORT_DESC_KEYBOARD( HID_REPORT_ID(REPORT_ID_KEYBOARD         )),
-  TUD_HID_REPORT_DESC_MNTMOUSE( ),
+  TUD_HID_REPORT_DESC_PLANBOOKMOUSE( ),
   TUD_HID_REPORT_DESC_CONSUMER( HID_REPORT_ID(REPORT_ID_CONSUMER_CONTROL )),
   TUD_HID_REPORT_DESC_GAMEPAD ( HID_REPORT_ID(REPORT_ID_GAMEPAD          ))
 };

@@ -1,4 +1,4 @@
-# POCKET REFORM SYSTEM FIRMWARE
+# PLANBOOK SYSTEM FIRMWARE
 
 # Setup
 1. Invoke `./install-fw-dependencies.sh` from the parent directories, or edit the build.sh to specify the location of the pico-sdk and pico-extras.

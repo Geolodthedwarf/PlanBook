@@ -43158,7 +43158,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Value" "MNT"
+		(property "Value" "PlanBook"
 			(at 0.75 0 0)
 			(layer "B.SilkS")
 			(hide yes)
@@ -45311,7 +45311,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Value" "MNT"
+		(property "Value" "PlanBook"
 			(at 0.75 0 0)
 			(layer "B.SilkS")
 			(hide yes)

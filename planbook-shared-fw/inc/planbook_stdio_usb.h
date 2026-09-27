@@ -1,13 +1,13 @@
 /*
- * Forked from stdio_usb. Provides stdio_usb setup for Pocket Reform sysctl.
+ * Forked from stdio_usb. Provides stdio_usb setup for PlanBook sysctl.
  *
  * Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef REFORM_STDIO_USB_H
-#define REFORM_STDIO_USB_H
+#ifndef PLANBOOK_STDIO_USB_H
+#define PLANBOOK_STDIO_USB_H
 
 #include "pico/stdio.h"
 
@@ -70,14 +70,14 @@ extern stdio_driver_t stdio_usb;
  *
  *  \return true if the USB CDC was initialized, false if an error occurred
  */
-bool reform_stdio_usb_init(void);
+bool planbook_stdio_usb_init(void);
 
 /*! \brief Check if there is an active stdio CDC connection to a host
  *  \ingroup pico_stdio_usb
  *
  *  \return true if stdio is connected over CDC
  */
-bool reform_stdio_usb_connected(void);
+bool planbook_stdio_usb_connected(void);
 #ifdef __cplusplus
 }
 #endif

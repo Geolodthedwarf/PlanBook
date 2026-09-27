@@ -89,7 +89,7 @@ void render_menu(int y) {
 void refresh_menu_page() {
   if (current_menu_page == MENU_PAGE_BATTERY_STATUS) {
     remote_get_voltages(0);
-  } else if (current_menu_page == MENU_PAGE_MNT_LOGO && --logo_timeout_ticks <= 0) {
+  } else if (current_menu_page == MENU_PAGE_PLANBOOK_LOGO && --logo_timeout_ticks <= 0) {
     reset_menu();
   }
 }
@@ -156,7 +156,7 @@ int input_menu_key(uint8_t keycode, uint8_t shift) {
   else if (keycode == KEY_T) {
     render_tina();
     logo_timeout_ticks = 10;
-    current_menu_page = MENU_PAGE_MNT_LOGO;
+    current_menu_page = MENU_PAGE_PLANBOOK_LOGO;
     return 0;
   }
   else if (keycode == KEY_SPACE) {
@@ -169,7 +169,7 @@ int input_menu_key(uint8_t keycode, uint8_t shift) {
     gfx_poke_str(0,2,"Hold to power up.");
     gfx_flush();
     logo_timeout_ticks = 5;
-    current_menu_page = MENU_PAGE_MNT_LOGO;
+    current_menu_page = MENU_PAGE_PLANBOOK_LOGO;
     return 0;
   }
   else if (keycode == KEY_B) {
@@ -265,7 +265,7 @@ void render_tina(void) {
 }
 
 void anim_hello(void) {
-  current_menu_page = MENU_PAGE_MNT_LOGO;
+  current_menu_page = MENU_PAGE_PLANBOOK_LOGO;
   logo_timeout_ticks = 10;
   gfx_clear();
   gfx_on();

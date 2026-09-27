@@ -4,10 +4,10 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 2 2
-Title "MNT PlanBook Keyboard"
+Title "PlanBook Keyboard"
 Date "2021-05-12"
 Rev "D-1"
-Comp "MNT Research GmbH"
+Comp "PlanBook Project"
 Comment1 "Lukas F. Hartmann"
 Comment2 "CERN OHL-S 2.0"
 Comment3 ""
@@ -470,7 +470,7 @@ L Mechanical:MountingHole GFX1
 U 1 1 5CFBB66E
 P 4750 7150
 F 0 "GFX1" H 4850 7196 50  0000 L CNN
-F 1 "MNT" H 4850 7105 50  0000 L CNN
+F 1 "PlanBook" H 4850 7105 50  0000 L CNN
 F 2 "footprints:planbook" H 4750 7150 50  0001 C CNN
 F 3 "~" H 4750 7150 50  0001 C CNN
 	1    4750 7150
@@ -998,7 +998,7 @@ L Mechanical:MountingHole GFX2
 U 1 1 60BAEE79
 P 5150 7150
 F 0 "GFX2" H 5250 7196 50  0000 L CNN
-F 1 "MNT" H 5250 7105 50  0000 L CNN
+F 1 "PlanBook" H 5250 7105 50  0000 L CNN
 F 2 "footprints:mpre-badge-d1" H 5150 7150 50  0001 C CNN
 F 3 "~" H 5150 7150 50  0001 C CNN
 	1    5150 7150

@@ -11,10 +11,10 @@
 
   (page A4)
   (title_block
-    (title "MNT PlanBook Keyboard")
+    (title "PlanBook Keyboard")
     (date 2021-05-12)
     (rev D-1)
-    (company "MNT Research GmbH")
+    (company "PlanBook Project")
     (comment 1 "Lukas F. Hartmann")
     (comment 2 "CERN OHL-S 2.0")
   )
@@ -309,7 +309,7 @@
     (fp_text reference GFX2 (at 0 0) (layer B.SilkS) hide
       (effects (font (size 1.524 1.524) (thickness 0.3)) (justify mirror))
     )
-    (fp_text value MNT (at 0.75 0) (layer B.SilkS) hide
+    (fp_text value PlanBook (at 0.75 0) (layer B.SilkS) hide
       (effects (font (size 1.524 1.524) (thickness 0.3)) (justify mirror))
     )
     (fp_poly (pts (xy -9.007628 -1.53092) (xy -8.998331 -1.558791) (xy -8.999653 -1.571408) (xy -9.019685 -1.611131)
@@ -1660,7 +1660,7 @@
     (fp_text reference GFX1 (at 0 0) (layer B.SilkS) hide
       (effects (font (size 1.524 1.524) (thickness 0.3)) (justify mirror))
     )
-    (fp_text value MNT (at 0.75 0) (layer B.SilkS) hide
+    (fp_text value PlanBook (at 0.75 0) (layer B.SilkS) hide
       (effects (font (size 1.524 1.524) (thickness 0.3)) (justify mirror))
     )
     (fp_poly (pts (xy -1.377009 0.407026) (xy -1.250197 0.359139) (xy -1.168579 0.281225) (xy -1.133986 0.174836)

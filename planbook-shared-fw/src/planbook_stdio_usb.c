@@ -1,5 +1,5 @@
 /**
- * Forked from stdio_usb. Provides USB setup and stdio support for Pocket Reform sysctl.
+ * Forked from stdio_usb. Provides USB setup and stdio support for PlanBook sysctl.
  *
  * Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
  *
@@ -7,7 +7,7 @@
  */
 
 #include "tusb.h"
-#include "reform_stdio_usb.h"
+#include "planbook_stdio_usb.h"
 
 #include "pico/binary_info.h"
 #include "pico/time.h"
@@ -90,7 +90,7 @@ static void stdio_usb_out_chars(const char *buf, int length) {
     if (!mutex_try_enter_block_until(&stdio_usb_mutex, make_timeout_time_ms(PICO_STDIO_DEADLOCK_TIMEOUT_MS))) {
         return;
     }
-    if (reform_stdio_usb_connected()) {
+    if (planbook_stdio_usb_connected()) {
         for (int i = 0; i < length;) {
             int n = length - i;
             int avail = (int) tud_cdc_write_available();
@@ -168,7 +168,7 @@ stdio_driver_t stdio_usb = {
 
 };
 
-bool reform_stdio_usb_init(void) {
+bool planbook_stdio_usb_init(void) {
     if (get_core_num() != alarm_pool_core_num(alarm_pool_get_default())) {
         // included an assertion here rather than just returning false, as this is likely
         // a coding bug, rather than anything else.
@@ -224,7 +224,7 @@ bool reform_stdio_usb_init(void) {
     return rc;
 }
 
-bool reform_stdio_usb_connected(void) {
+bool planbook_stdio_usb_connected(void) {
 #if PICO_STDIO_USB_CONNECTION_WITHOUT_DTR
     return tud_ready();
 #else

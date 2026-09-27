@@ -1,5 +1,5 @@
 [USB\VID_1209&PID_6D07]
-Vendor=MNT Research
+Vendor=PlanBook Project
 Plugin=rp_pico
 Flags=internal
 VersionFormat=number

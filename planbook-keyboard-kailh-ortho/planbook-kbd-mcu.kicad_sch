@@ -7815,7 +7815,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "MNT"
+		(property "Value" "PlanBook"
 			(at 113.03 231.013 0)
 			(effects
 				(font
@@ -8444,7 +8444,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "MNT"
+		(property "Value" "PlanBook"
 			(at 113.03 237.363 0)
 			(effects
 				(font

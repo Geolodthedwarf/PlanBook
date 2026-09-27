@@ -4,10 +4,10 @@ EELAYER END
 $Descr A3 16535 11693
 encoding utf-8
 Sheet 1 2
-Title "MNT PlanBook Keyboard"
+Title "PlanBook Keyboard"
 Date "2021-05-12"
 Rev "D-1"
-Comp "MNT Research GmbH"
+Comp "PlanBook Project"
 Comment1 "Lukas F. Hartmann"
 Comment2 "CERN OHL-S 2.0"
 Comment3 ""

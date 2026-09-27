@@ -191,11 +191,11 @@ into a state where you can use `flash.sh` to upload a new firmware.
 
 ## Resources
 
-* [MNT PlanBook Operator
+* [PlanBook Operator
   Handbook](https://mntre.com/documentation/pocket-reform-handbook/)  
   This document has a lot of information about the architecture and
   usage of the PlanBook that is helpful to the firmware hacker.
-* [MNT PlanBook DIY Assembly
+* [PlanBook DIY Assembly
   Manual](https://mntre.com/documentation/pocket-reform-diy-assembly-manual.pdf)  
   This document has detailed photos of the internal parts of the
   PlanBook, references for how and where cables are mounted ,etc.

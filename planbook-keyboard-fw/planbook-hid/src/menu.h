@@ -17,7 +17,7 @@ struct menu_item {
 #define MENU_PAGE_NONE 0
 #define MENU_PAGE_OTHER 1
 #define MENU_PAGE_BATTERY_STATUS 2
-#define MENU_PAGE_MNT_LOGO 3
+#define MENU_PAGE_PLANBOOK_LOGO 3
 #define MENU_PAGE_CONSOLE 4
 
 void reset_and_render_menu(void);

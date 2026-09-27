@@ -36,7 +36,7 @@
 #include "pico/unique_id.h"
 #include "planbook_reset_priv.h"
 
-#define USBD_MANUFACTURER USB_STR_MANUFACTURER_MNT
+#define USBD_MANUFACTURER USB_STR_MANUFACTURER_PLANBOOK
 
 #if 1
 
