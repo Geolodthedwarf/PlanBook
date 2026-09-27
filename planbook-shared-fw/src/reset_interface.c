@@ -1,0 +1,90 @@
+/*
+ SPDX-License-Identifier: BSD-3-Clause
+ Copyright (c) 2021 Raspberry Pi (Trading) Ltd.
+ Copyright (c) 2024 Chris Hofstaedtler
+
+ Forked from pico_sdk stdio_usb.
+*/
+#include "reset_interface.h"
+#include "device/usbd_pvt.h"
+#include "planbook_reset_priv.h"
+
+#include "tusb.h"
+
+#include "pico/bootrom.h"
+#include "hardware/watchdog.h"
+
+static uint8_t itf_num;
+
+static void resetd_init(void) {
+}
+
+static void resetd_reset(uint8_t __unused rhport) {
+    itf_num = 0;
+}
+
+static uint16_t resetd_open(uint8_t __unused rhport, tusb_desc_interface_t const *itf_desc, uint16_t max_len) {
+    TU_VERIFY(TUSB_CLASS_VENDOR_SPECIFIC == itf_desc->bInterfaceClass &&
+              PLANBOOK_RESET_INTERFACE_SUBCLASS == itf_desc->bInterfaceSubClass &&
+              PLANBOOK_RESET_INTERFACE_PROTOCOL == itf_desc->bInterfaceProtocol, 0);
+
+    uint16_t const drv_len = sizeof(tusb_desc_interface_t);
+    TU_VERIFY(max_len >= drv_len, 0);
+
+    itf_num = itf_desc->bInterfaceNumber;
+    return drv_len;
+}
+
+// Support for parameterized reset via vendor interface control request
+static bool resetd_control_xfer_cb(__unused uint8_t rhport, uint8_t stage, tusb_control_request_t const * request) {
+    // nothing to do with DATA & ACK stage
+    if (stage != CONTROL_STAGE_SETUP) return true;
+
+    if (request->bmRequestType_bit.recipient != TUSB_REQ_RCPT_INTERFACE) {
+        return false;
+    }
+
+    if (request->wIndex != itf_num) {
+        return false;
+    }
+
+    if (request->bRequest == PLANBOOK_RESET_REQUEST_BOOTSEL) {
+        planbook_reset_callback();
+        reset_usb_boot(0, 0);
+        // does not return, otherwise we'd return true
+    }
+
+    if (request->bRequest == PLANBOOK_RESET_REQUEST_RESET) {
+        planbook_reset_callback();
+        watchdog_reboot(0, 0, RESET_INTERFACE_RESET_TO_FLASH_DELAY_MS);
+        return true;
+    }
+
+    return false;
+}
+
+static bool resetd_xfer_cb(uint8_t __unused rhport, uint8_t __unused ep_addr, xfer_result_t __unused result, uint32_t __unused xferred_bytes) {
+    return true;
+}
+
+const usbd_class_driver_t planbook_reset_class_driver =
+{
+#if CFG_TUSB_DEBUG >= 2
+    .name = "RESET",
+#endif
+    .init             = resetd_init,
+    .reset            = resetd_reset,
+    .open             = resetd_open,
+    .control_xfer_cb  = resetd_control_xfer_cb,
+    .xfer_cb          = resetd_xfer_cb,
+    .sof              = NULL
+};
+
+#if RESET_INTERFACE_ENABLE_RESET_VIA_BAUD_RATE
+// Support for default BOOTSEL reset by changing baud rate
+void tud_cdc_line_coding_cb(__unused uint8_t itf, cdc_line_coding_t const* p_line_coding) {
+    if (p_line_coding->bit_rate == RESET_INTERFACE_RESET_MAGIC_BAUD_RATE) {
+        reset_usb_boot(0, 0);
+    }
+}
+#endif

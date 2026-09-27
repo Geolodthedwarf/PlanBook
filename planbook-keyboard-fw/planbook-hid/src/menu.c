@@ -1,0 +1,303 @@
+/*
+  SPDX-License-Identifier: GPL-3.0-or-later
+  PlanBook Keyboard/Trackball Controller Firmware for RP2040
+  Copyright 2021-2026 PlanBook Project
+*/
+
+#include "edit.h"
+#include "menu.h"
+#include "oled.h"
+#include "remote.h"
+#include "usb_hid_keys.h"
+#include "keyboard.h"
+#include "leds.h"
+#include "pico/stdlib.h"
+#include "pico/bootrom.h"
+#include "hardware/watchdog.h"
+#include "tusb.h"
+#include "pins.h"
+#include <malloc.h>
+
+static int current_menu_y = 0;
+static int current_scroll_y = 0;
+static int current_menu_page = 0;
+static int8_t logo_timeout_ticks = 0;
+
+#ifdef KBD_MODE_STANDALONE
+// TODO
+#else
+#define MENU_NUM_ITEMS 9
+const struct menu_item menu_items[MENU_NUM_ITEMS] = {
+  { "Exit Menu         ESC", KEY_ESC },
+  { "Power On            1", KEY_1 },
+  { "Power Off           0", KEY_0 },
+  { "Battery Status      b", KEY_B },
+  { "Wake              SPC", KEY_SPACE },
+  { "System Status       s", KEY_S },
+  { "Reset Keyboard      r", KEY_R },
+  { "Reset USB           u", KEY_U },
+  { "Console             c", KEY_C },
+};
+#endif
+
+// via https://forums.raspberrypi.com/viewtopic.php?p=2082565&sid=7f7f0999d6a9e8001755ca7793806fa8#p2082565
+uint32_t get_total_heap(void) {
+   extern char __StackLimit, __bss_end__;
+   return &__StackLimit - &__bss_end__;
+}
+
+uint32_t get_free_heap(void) {
+   struct mallinfo m = mallinfo();
+   return get_total_heap() - m.uordblks;
+}
+
+void rp2040_reset() {
+  watchdog_enable(1, 1);
+  while(1);
+}
+
+void rp2040_reset_to_bootloader() {
+  reset_usb_boot(0, 0);
+  while(1);
+}
+
+void reset_menu() {
+  current_scroll_y = 0;
+  current_menu_y = 0;
+  current_menu_page = MENU_PAGE_NONE;
+  gfx_clear();
+  gfx_flush();
+}
+
+void reset_and_render_menu() {
+  reset_menu();
+  render_menu(current_scroll_y);
+}
+
+void render_menu(int y) {
+  gfx_clear();
+  gfx_invert_row((uint8_t)(current_menu_y-y));
+  for (int i=0; i<MENU_NUM_ITEMS; i++) {
+    gfx_poke_str(0,(uint8_t)(i-y),(char*)menu_items[i].title);
+  }
+  gfx_on();
+  gfx_contrast(0x7f);
+  gfx_flush();
+}
+
+// automatically refresh the current menu page if needed
+void refresh_menu_page() {
+  if (current_menu_page == MENU_PAGE_BATTERY_STATUS) {
+    remote_get_voltages(0);
+  } else if (current_menu_page == MENU_PAGE_MNT_LOGO && --logo_timeout_ticks <= 0) {
+    reset_menu();
+  }
+}
+
+int execute_menu_row_function(int y) {
+  current_menu_page = MENU_PAGE_NONE;
+
+  if (y>=0 && y<MENU_NUM_ITEMS) {
+    current_menu_page = MENU_PAGE_OTHER;
+    return input_menu_key(menu_items[y].keycode, 0);
+  }
+  return input_menu_key(KEY_ESC, 0);
+}
+
+// returns 1 for navigation function (stay in menu mode), 0 for terminal function
+int input_menu_key(uint8_t keycode, uint8_t shift) {
+  if (current_menu_page == MENU_PAGE_CONSOLE) {
+    // user is inside of a screen that handles its own inputs
+    if (keycode == KEY_ESC) {
+      gfx_clear();
+      gfx_flush();
+      return 0; // exits menu mode in main.c
+    }
+    edit_input_key(keycode, shift);
+    return 1;
+  }
+  
+  if (keycode == KEY_0) {
+    // TODO: are you sure? (port from kbd4)
+    led_turn_off();
+    anim_goodbye();
+    remote_turn_off_som();
+    reset_keyboard_state();
+    return 0;
+  }
+  else if (keycode == KEY_1) {
+    if (remote_turn_on_som()) {
+      gpio_put(PIN_LEDS_PWR_EN, 1);
+      anim_hello();
+      // the keyboard backlight turning on
+      // is a visual signal that people are used
+      // to--so if the remembered brightess was
+      // too dark, revert to the default
+      sleep_ms(300);
+      if (led_get_brightness() < 0x20) {
+        led_set_rgb(KBD_DEFAULT_BACKLIGHT_COLOR);
+      }
+      for (int i=0; i<3; i++) {
+        led_turn_on();
+      }
+    }
+    return 0;
+  }
+  else if (keycode == KEY_R) {
+    // reset the MCU
+    rp2040_reset();
+  }
+  else if (keycode == KEY_U) {
+    // reset the USB stack
+    tud_disconnect();
+    sleep_ms(10);
+    tud_connect();
+  }
+  else if (keycode == KEY_T) {
+    render_tina();
+    logo_timeout_ticks = 10;
+    current_menu_page = MENU_PAGE_MNT_LOGO;
+    return 0;
+  }
+  else if (keycode == KEY_SPACE) {
+    remote_wake_som();
+  }
+  else if (keycode == KEY_H) {
+    // turn on hint page
+    gfx_clear();
+    gfx_poke_str(0,1,"Press \x8a + \x8b for menu.");
+    gfx_poke_str(0,2,"Hold to power up.");
+    gfx_flush();
+    logo_timeout_ticks = 5;
+    current_menu_page = MENU_PAGE_MNT_LOGO;
+    return 0;
+  }
+  else if (keycode == KEY_B) {
+    current_menu_page = MENU_PAGE_BATTERY_STATUS;
+    remote_get_voltages(0);
+    return 0;
+  }
+  else if (keycode == KEY_S) {
+    remote_get_status();
+    return 0;
+  }
+  else if (keycode == KEY_M) {
+    // show free memory and soon, more stats
+    char tmp[32];
+    uint32_t free_heap = get_free_heap();
+    snprintf(tmp, 32, "free: %lu", (unsigned long)free_heap);
+    gfx_clear();
+    gfx_poke_str(0,0,tmp);
+    gfx_flush();
+    return 0;
+  }
+  else if (keycode == KEY_F1) {
+    //kbd_brightness_dec();
+    return 1;
+  }
+  else if (keycode == KEY_F2) {
+    //kbd_brightness_inc();
+    return 1;
+  }
+  else if (keycode == KEY_UP) {
+    current_menu_y--;
+    if (current_menu_y<0) current_menu_y = 0;
+    if (current_menu_y<=current_scroll_y) current_scroll_y--;
+    if (current_scroll_y<0) current_scroll_y = 0;
+    render_menu(current_scroll_y);
+    return 1;
+  }
+  else if (keycode == KEY_DOWN) {
+    current_menu_y++;
+    if (current_menu_y>=MENU_NUM_ITEMS) current_menu_y = MENU_NUM_ITEMS-1;
+    if (current_menu_y>=current_scroll_y+3) current_scroll_y++;
+    render_menu(current_scroll_y);
+    return 1;
+  }
+  else if (keycode == KEY_ENTER) {
+    return execute_menu_row_function(current_menu_y);
+  }
+  else if (keycode == KEY_ESC) {
+    gfx_clear();
+    gfx_flush();
+  }
+  else if (keycode == KEY_X) {
+    gfx_clear();
+    gfx_poke_str(1, 1, "Entered firmware");
+    gfx_poke_str(1, 2, "update mode.");
+    gfx_on();
+    gfx_flush();
+    rp2040_reset_to_bootloader();
+  }
+  else if (keycode == KEY_L) {
+    anim_hello();
+    return 0;
+  }
+  else if (keycode == KEY_C) {
+    // console
+    current_menu_page = MENU_PAGE_CONSOLE;
+    edit_setup();
+    return 2;
+  }
+
+  gfx_clear();
+  gfx_flush();
+
+  return 0;
+}
+
+void render_tina(void) {
+  gfx_clear();
+  gfx_on();
+  for (uint8_t y=0; y<4; y++) {
+    gfx_invert_row(y);
+  }
+  for (int f=13; f>=0; f--) {
+    for (uint8_t y=0; y<4; y++) {
+      for (uint8_t x=0; x<6; x++) {
+        if (x+8+f<21) {
+          gfx_poke((uint8_t)(x+8+f),y,(uint8_t)((4+y)*32+x+12));
+        }
+      }
+    }
+    gfx_flush();
+  }
+}
+
+void anim_hello(void) {
+  current_menu_page = MENU_PAGE_MNT_LOGO;
+  logo_timeout_ticks = 10;
+  gfx_clear();
+  gfx_on();
+  for (uint8_t y=0; y<3; y++) {
+    for (uint8_t x=0; x<12; x++) {
+      gfx_poke(x+4,y+1,(uint8_t)((5+y)*32+x));
+    }
+    gfx_flush();
+  }
+  for (uint8_t y=0; y<0xff; y++) {
+    gfx_contrast(y);
+    sleep_ms(0);
+  }
+  for (uint8_t y=0; y<0xff; y++) {
+    gfx_contrast(0xff-y);
+    sleep_ms(0);
+  }
+}
+
+void anim_goodbye(void) {
+  gfx_clear();
+  gfx_on();
+  for (uint8_t y=0; y<3; y++) {
+    for (uint8_t x=0; x<12; x++) {
+      gfx_poke(x+4,y+1,(uint8_t)((5+y)*32+x));
+    }
+  }
+  for (uint8_t y=0; y<3; y++) {
+    for (uint8_t x=0; x<12; x++) {
+      gfx_poke(x+4,y+1,' ');
+    }
+    gfx_flush();
+  }
+  gfx_off();
+}

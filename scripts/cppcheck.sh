@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -ex
+
+# keyboard
+cppcheck --suppress=unknownMacro --suppress=subtractPointers --suppress=constParameterPointer --enable=warning --enable=style --error-exitcode=1 --check-level=exhaustive -D USBD_DESC_STR_MAX=40 -DHID_REPORT_ID= planbook-keyboard-fw/pocket-hid/src planbook-shared-fw/src
+
+# system controller
+# TODO: fix 32 bit == unsigned long issue
+cppcheck --suppress=unknownMacro --suppress=badBitmaskCheck --suppress=constParameterPointer --suppress=invalidPrintfArgType_uint --enable=warning --enable=style --error-exitcode=1 --check-level=exhaustive -D USBD_DESC_STR_MAX=40 planbook-sysctl-fw/src planbook-shared-fw/src

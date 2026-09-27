@@ -1,0 +1,52 @@
+image: debian:unstable-slim
+
+build:
+  artifacts:
+    paths:
+      - planbook-sysctl-fw/build/sysctl.uf2
+      - planbook-sysctl-fw/build/sysctl-recovery-mode.uf2
+      - planbook-sysctl-fw/build/sysctl.cab
+      - scripts/update-sysctl-firmware.sh
+      - scripts/update-keyboard-firmware.sh
+      - planbook-keyboard-fw/planbook-hid/build/planbook-hid.uf2
+      - planbook-keyboard-fw/planbook-hid/build/planbook-hid.cab
+  script:
+    - echo "CI_COMMIT_TAG $CI_COMMIT_TAG"
+    - ./install-fw-dependencies.sh
+    - |
+      # use the timestamp of the latest git commit to set reproducible S_D_E
+      if [ -z ${SOURCE_DATE_EPOCH:+x} ] && git -C . rev-parse 2>/dev/null; then
+        SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)
+      fi
+      # check if the current commit is tagged or otherwise use the git hash
+      if git describe >/dev/null 2>&1 && [ "$(git describe --abbrev=0)" = "$(git describe)" ]; then
+        VERSION="$(git describe --abbrev=0 | tr -d -)"
+      else
+        VERSION="g$(git rev-parse --short=7 HEAD)"
+      fi
+    - export PLANBOOK_FIRMWARE_VERSION="$VERSION"
+    #
+    # find bugs like dynamic memory allocation in firmware
+    - scripts/cppcheck.sh
+    #
+    - echo "Building sysctl-recovery-mode firmware"
+    - env --chdir=planbook-sysctl-fw PLANBOOK_FACTORY_MODE=1 ./build.sh
+    - cp planbook-sysctl-fw/build/sysctl.uf2 planbook-sysctl-fw/build/sysctl-recovery-mode.uf2
+    #
+    - echo "Building sysctl firmware"
+    - env --chdir=planbook-sysctl-fw ./build.sh
+    #
+    - echo "Building keyboard firmware"
+    - env --chdir=planbook-keyboard-fw/planbook-hid ./build.sh
+
+lvfs-upload:
+  needs:
+    - build
+  rules:
+    - if: $CI_COMMIT_TAG
+  before_script:
+    - apt-get --update --no-install-recommends -y install curl ca-certificates jq
+  script:
+    - ./upload-fw.sh embargo planbook-keyboard-fw/planbook-hid/build/planbook-hid.cab "$LVFS_UPLOAD_NETRC"
+    - sleep 5  # https://gitlab.com/fwupd/lvfs-website/-/issues/1037#note_2786314058
+    - ./upload-fw.sh embargo planbook-sysctl-fw/build/sysctl.cab "$LVFS_UPLOAD_NETRC"
