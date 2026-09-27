@@ -1,7 +1,7 @@
 (kicad_pcb (version 20221018) (generator pcbnew)
 
   (general
-    (thickness 1)
+    (thickness 1.6)
   )
 
   (paper "A4")
@@ -48,10 +48,10 @@
       (layer "B.Mask" (type "Bottom Solder Mask") (thickness 0.01))
       (layer "B.Paste" (type "Bottom Solder Paste"))
       (layer "B.SilkS" (type "Bottom Silk Screen"))
-      (copper_finish "None")
+      (copper_finish "ENIG")
       (dielectric_constraints no)
     )
-    (pad_to_mask_clearance 0)
+    (pad_to_mask_clearance 0.05)
     (pcbplotparams
       (layerselection 0x00010fc_ffffffff)
       (plot_on_all_layers_selection 0x0000000_00000000)
