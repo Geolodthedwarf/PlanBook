@@ -3509,7 +3509,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "footprints:pref-headset-badge"
+		(property "Footprint" ""
 			(at 67.31 100.33 0)
 			(effects
 				(font

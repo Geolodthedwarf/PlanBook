@@ -13466,7 +13466,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "planbook-charger:planbook-charger-badge"
+		(property "Footprint" ""
 			(at 224.79 257.81 0)
 			(effects
 				(font

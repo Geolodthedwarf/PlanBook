@@ -1565,7 +1565,7 @@
     (property "Value" "BADGE" (at 69.85 101.6 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "footprints:pref-headset-badge" (at 67.31 100.33 0)
+    (property "Footprint" "" (at 67.31 100.33 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 67.31 100.33 0)

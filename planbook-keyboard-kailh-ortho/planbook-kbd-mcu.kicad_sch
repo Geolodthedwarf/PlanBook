@@ -8453,7 +8453,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "footprints:pref-keyboard15-badge"
+		(property "Footprint" ""
 			(at 110.49 236.22 0)
 			(effects
 				(font

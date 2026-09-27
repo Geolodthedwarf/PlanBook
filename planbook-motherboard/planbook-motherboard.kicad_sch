@@ -106589,7 +106589,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "footprints:pref-motherboard-badge"
+		(property "Footprint" ""
 			(at 133.35 740.41 0)
 			(hide yes)
 			(show_name no)
